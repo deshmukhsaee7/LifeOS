@@ -1,0 +1,2131 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LifeOS — Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+
+        body { margin: 0; background: #101014; color: #eeeef2; font-family: 'DM Sans', sans-serif; }
+        .app { display: flex; min-height: 100vh; }
+        .sidebar { width: 230px; background: #15151b; border-right: 1px solid #292933; padding: 25px 16px; box-sizing: border-box; flex-shrink: 0; }
+        .brand { font-size: 23px; font-weight: 700; margin: 0 0 40px 10px; }
+        .brand span { color: #a78bfa; }
+        .nav-label { color: #777783; font-size: 10px; letter-spacing: 1.5px; margin: 25px 10px 12px; }
+        .nav-item { display: block; width: 100%; text-align: left; background: transparent; border: 0; color: #9999a6; padding: 12px; border-radius: 7px; cursor: pointer; font-size: 13px; margin: 3px 0; }
+        .nav-item:hover, .nav-item.active { background: #282333; color: #c4b5fd; }
+        .sidebar-bottom { margin-top: 45px; border-top: 1px solid #292933; padding-top: 15px; }
+        .main { flex: 1; min-width: 0; }
+        .topbar { height: 72px; border-bottom: 1px solid #292933; display: flex; align-items: center; justify-content: space-between; padding: 0 4%; }
+        .topbar span { color: #9999a6; font-size: 13px; }
+        .top-actions { display: flex; gap: 18px; align-items: center; }
+        .top-actions a { color: #b69cff; text-decoration: none; font-size: 13px; }
+        .content { padding: 45px 5%; max-width: 1100px; }
+        .eyebrow { color: #a78bfa; font-size: 10px; letter-spacing: 2px; }
+        h1 { font-size: clamp(28px, 4vw, 38px); margin: 13px 0 8px; }
+        .muted { color: #898995; font-size: 13px; }
+        .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 35px; }
+        .card { background: #191920; border: 1px solid #30303b; border-radius: 10px; padding: 23px; }
+        .card small { color: #9999a6; font-size: 10px; letter-spacing: 1px; }
+        .card h2 { font-size: 30px; margin: 13px 0 5px; }
+        .progress { height: 5px; background: #34313f; border-radius: 10px; margin-top: 17px; overflow: hidden; }
+        .progress span { display: block; width: 72%; height: 100%; background: #a78bfa; }
+        .section { display: none; }
+        .section.active { display: block; }
+        .section-title { font-size: 25px; margin-bottom: 8px; }
+        .empty { margin-top: 25px; padding: 35px; border: 1px dashed #41404b; border-radius: 10px; color: #9999a6; font-size: 13px; }
+        .task { display: flex; align-items: center; gap: 12px; padding: 15px 0; border-bottom: 1px solid #292933; color: #c5c5ce; font-size: 13px; }
+        .task input { accent-color: #a78bfa; }
+        .mobile-menu { display: none; }
+        @media(max-width: 750px) {
+            .sidebar { width: 190px; }
+            .cards { grid-template-columns: 1fr; }
+        }
+        @media(max-width: 560px) {
+            .sidebar { width: 65px; padding: 20px 7px; }
+            .brand { font-size: 0; margin: 0 0 30px 8px; }
+            .brand span { font-size: 18px; }
+            .nav-label { display: none; }
+            .nav-item { font-size: 0; text-align: center; padding: 13px 3px; }
+            .nav-item::first-letter { font-size: 16px; }
+            .sidebar-bottom { margin-top: 25px; }
+            .topbar { padding: 0 15px; }
+            .content { padding: 30px 18px; }
+        }
+        .task-filter {
+    background: transparent;
+    color: #9999a6;
+    border: 1px solid #393844;
+    border-radius: 6px;
+    padding: 8px 15px;
+    cursor: pointer;
+}
+.task-filter.active {
+    background: #282333;
+    color: #c4b5fd;
+    border-color: #8b5cf6;
+}
+/* COMMAND PALETTE */
+.command-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.65);
+    backdrop-filter: blur(6px);
+    display: none;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 15vh 20px 20px;
+    z-index: 9999;
+}
+
+.command-overlay.active {
+    display: flex;
+}
+
+.command-box {
+    width: 100%;
+    max-width: 560px;
+    background: #17171f;
+    border: 1px solid #343440;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 24px 80px rgba(0, 0, 0, 0.5);
+}
+
+.command-search {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 17px;
+    border-bottom: 1px solid #292933;
+    color: #a78bfa;
+}
+
+.command-search input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: white;
+    font-size: 14px;
+}
+
+.command-search kbd {
+    color: #999;
+    font-size: 11px;
+    border: 1px solid #444;
+    border-radius: 5px;
+    padding: 3px 7px;
+}
+
+.command-results {
+    padding: 12px;
+    max-height: 350px;
+    overflow-y: auto;
+}
+
+.command-label {
+    color: #777;
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    padding: 5px 10px;
+}
+
+.command-item {
+    display: block;
+    width: 100%;
+    text-align: left;
+    background: transparent;
+    border: none;
+    color: #ddd;
+    padding: 11px 12px;
+    border-radius: 7px;
+    cursor: pointer;
+    font-size: 13px;
+}
+
+.command-item:hover,
+.command-item.selected {
+    background: #292435;
+    color: #c4b5fd;
+}
+
+.command-footer {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border-top: 1px solid #292933;
+    color: #888;
+    font-size: 10px;
+}
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="./supabase.js"></script>
+</head>
+<body>
+<div class="app">
+    <aside class="sidebar">
+        <div class="brand">life<span>OS</span></div>
+
+        <div class="nav-label">WORKSPACE</div>
+        <button class="nav-item active" data-section="overview">◈ &nbsp; Overview</button>
+        <button class="nav-item" data-section="tasks">▤ &nbsp; My Tasks</button>
+        <button class="nav-item" data-section="habits">◷ &nbsp; Habits</button>
+        <button class="nav-item" data-section="goals">◎ &nbsp; Goals</button>
+        <button class="nav-item" data-section="calendar">▦ &nbsp; Calendar</button>
+        <button class="nav-item" data-section="analytics">↗ &nbsp; Analytics</button>
+
+        <div class="sidebar-bottom">
+            <button class="nav-item" data-section="settings">⚙ &nbsp; Settings</button>
+            <a href="#" id="logoutButton" class="nav-item" style="text-decoration:none">↩ &nbsp; Log out</a>
+        </div>
+    </aside>
+
+    <main class="main">
+        <header class="topbar">
+            <span id="todayDate">YOUR WORKSPACE</span>
+            <div class="top-actions">
+                <span>✦ Personal space</span>
+                <a href="mailto:hello@lifeos.example">Feedback</a>
+            </div>
+        </header>
+
+        <div class="content">
+            
+<section class="section active" id="overview">
+    <div class="eyebrow">YOUR PERSONAL WORKSPACE</div>
+    <h1>Good afternoon.</h1>
+    <p class="muted">Ready to take control of your day?</p>
+
+    <div class="cards">
+        <div class="card">
+            <small>DAILY PROGRESS</small>
+            <h2 id="dailyProgressValue">0%</h2>
+            <p class="muted">Your progress today.</p>
+            <div class="progress">
+                <span id="dailyProgressBar" style="width:0%"></span>
+            </div>
+        </div>
+
+        <div class="card">
+            <small>TASKS COMPLETED</small>
+            <h2 id="taskCount">0 / 0</h2>
+            <p class="muted">Your daily priorities.</p>
+        </div>
+
+        <div class="card">
+            <small>HABIT STREAK</small>
+            <h2 id="habitStreakValue">0 days</h2>
+            <p class="muted">Keep building consistency.</p>
+        </div>
+    </div>
+
+    <div class="card" style="margin-top:22px">
+        <small>YOUR PRIORITIES</small>
+        <div id="overviewPriorities">
+            <p class="muted">Loading your priorities...</p>
+        </div>
+    </div>
+</section>
+
+
+            
+<section class="section" id="tasks">
+    <h2 class="section-title">My Tasks</h2>
+    <p class="muted">Make a plan. Get things done.</p>
+
+    <div class="card" style="margin-top:25px">
+        <form id="taskForm" style="display:flex;gap:10px;flex-wrap:wrap">
+            <input id="taskInput" type="text" placeholder="What needs to get done?" required
+                style="flex:1;min-width:180px;padding:13px;background:#101014;border:1px solid #393844;border-radius:7px;color:white">
+            <select id="taskPriority"
+                style="padding:12px;background:#101014;border:1px solid #393844;border-radius:7px;color:white">
+                <option value="Medium">Medium priority</option>
+                <option value="High">High priority</option>
+                <option value="Low">Low priority</option>
+            </select>
+            <button type="submit"
+                style="background:#a78bfa;color:#17131f;border:0;padding:12px 20px;border-radius:7px;cursor:pointer;font-weight:bold">
+                + Add Task
+            </button>
+        </form>
+    </div>
+
+    <div style="display:flex;gap:10px;margin:22px 0;flex-wrap:wrap">
+        <button class="task-filter active" data-filter="all">All</button>
+        <button class="task-filter" data-filter="pending">Pending</button>
+        <button class="task-filter" data-filter="completed">Completed</button>
+    </div>
+
+    <div id="taskList" class="card"></div>
+</section>
+
+
+            
+<section class="section" id="habits">
+    <h2 class="section-title">Habits</h2>
+    <p class="muted">Small actions. Consistent progress.</p>
+
+    <div class="card" style="margin-top:25px">
+        <form id="habitForm" style="display:flex;gap:10px;flex-wrap:wrap">
+            <input id="habitInput" type="text"
+                placeholder="Add a new habit..."
+                required
+                style="flex:1;min-width:180px;padding:13px;background:#101014;border:1px solid #393844;border-radius:7px;color:white">
+            <button type="submit"
+                style="background:#a78bfa;color:#17131f;border:0;padding:12px 20px;border-radius:7px;cursor:pointer">
+                + Add Habit
+            </button>
+        </form>
+    </div>
+
+    <div class="cards" id="habitStats">
+        <div class="card">
+            <small>TODAY'S PROGRESS</small>
+            <h2 id="habitProgress">0 / 0</h2>
+        </div>
+        <div class="card">
+            <small>COMPLETED TODAY</small>
+            <h2 id="habitCompleted">0</h2>
+        </div>
+        <div class="card">
+            <small>YOUR HABITS</small>
+            <h2 id="habitTotal">0</h2>
+        </div>
+    </div>
+
+    <div class="card" style="margin-top:22px">
+        <small>DAILY ROUTINE</small>
+        <div id="habitList"></div>
+    </div>
+</section>
+
+
+            
+<section class="section" id="goals">
+    <h2 class="section-title">Goals</h2>
+    <p class="muted">Turn your ambitions into achievable milestones.</p>
+
+    <div class="card" style="margin-top:25px">
+        <form id="goalForm" style="display:flex;gap:10px;flex-wrap:wrap">
+            <input id="goalInput" type="text" placeholder="What's your goal?" required
+                style="flex:1;min-width:180px;padding:13px;background:#101014;border:1px solid #393844;border-radius:7px;color:white">
+
+            <input id="goalDeadline" type="date" required
+    style="padding:12px;background:#101014;border:1px solid #393844;border-radius:7px;color:white;color-scheme:dark">
+
+            <button type="submit"
+                style="background:#a78bfa;color:#17131f;border:0;padding:12px 20px;border-radius:7px;cursor:pointer">
+                + Add Goal
+            </button>
+        </form>
+    </div>
+
+    <div id="goalList" style="margin-top:22px"></div>
+</section>
+
+
+           
+<section class="section" id="calendar">
+    <h2 class="section-title">Calendar</h2>
+    <p class="muted">Plan your days. Make every moment count.</p>
+
+    <div class="card" style="margin-top:25px">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:20px">
+            <button type="button" id="prevMonth" class="calendar-nav">‹</button>
+            <h3 id="calendarMonth" style="margin:0"></h3>
+            <button type="button" id="nextMonth" class="calendar-nav">›</button>
+        </div>
+
+        <div class="calendar-grid" id="calendarGrid"></div>
+
+        <div style="display:flex;gap:15px;margin-top:15px;flex-wrap:wrap">
+            <small class="muted">● Today</small>
+            <small style="color:#a78bfa">● Has events</small>
+        </div>
+    </div>
+
+    <div class="card" style="margin-top:20px">
+        <h3 id="selectedDateTitle">Events</h3>
+
+        <form id="calendarEventForm"
+            style="display:flex;gap:10px;flex-wrap:wrap;margin:18px 0">
+            <input id="eventInput" type="text"
+                placeholder="Add an event or reminder..." required
+                style="flex:1;min-width:180px;padding:12px;background:#101014;border:1px solid #393844;border-radius:7px;color:white">
+
+            <input id="eventDate" type="date" required
+                style="padding:12px;background:#101014;border:1px solid #393844;border-radius:7px;color:white;color-scheme:dark">
+
+            <button type="submit"
+                style="background:#a78bfa;color:#17131f;border:0;padding:12px 18px;border-radius:7px;cursor:pointer">
+                + Add Event
+            </button>
+        </form>
+
+        <div id="selectedEvents"></div>
+    </div>
+
+    <div class="card" style="margin-top:20px">
+        <h3>Upcoming Events</h3>
+        <div id="upcomingEvents" style="margin-top:15px"></div>
+    </div>
+</section>
+
+
+           
+<section class="section" id="analytics">
+    <h2 class="section-title">Analytics</h2>
+    <p class="muted">Your progress, made visible.</p>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:15px;margin-top:25px">
+        <div class="card">
+            <p class="muted">Tasks completed</p>
+            <h2 id="analyticsTasks">0</h2>
+            <small class="muted" id="analyticsTasksSub">0 pending</small>
+        </div>
+
+        <div class="card">
+            <p class="muted">Habit completion</p>
+            <h2 id="analyticsHabits">0%</h2>
+            <small class="muted">Today's progress</small>
+        </div>
+
+        <div class="card">
+            <p class="muted">Goals achieved</p>
+            <h2 id="analyticsGoals">0</h2>
+            <small class="muted" id="analyticsGoalsSub">0 active goals</small>
+        </div>
+
+        <div class="card">
+            <p class="muted">Upcoming events</p>
+            <h2 id="analyticsEvents">0</h2>
+            <small class="muted">Scheduled from today</small>
+        </div>
+    </div>
+
+    <div class="card" style="margin-top:20px">
+        <h3>Goal Progress</h3>
+        <div id="analyticsGoalList" style="margin-top:18px"></div>
+    </div>
+
+    <div class="card" style="margin-top:20px">
+        <h3>Habit Activity — Last 7 Days</h3>
+        <p class="muted">Your daily habit completion.</p>
+        <div id="analyticsWeekly" style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:10px;margin-top:22px"></div>
+    </div>
+
+    <div class="card" style="margin-top:20px">
+        <h3>Your Productivity Summary</h3>
+        <p class="muted" id="analyticsSummary" style="line-height:1.8;margin-top:12px">
+            Your activity summary will appear here.
+        </p>
+    </div>
+</section>
+
+
+<section class="section" id="settings">
+    <h2 class="section-title">Settings</h2>
+    <p class="muted">Make LifeOS feel like your own.</p>
+
+    <div class="card" style="margin-top:25px">
+        <h3>Profile</h3>
+        <p class="muted">Choose how LifeOS addresses you.</p>
+
+        <form id="profileSettingsForm" style="display:flex;gap:10px;flex-wrap:wrap;margin-top:18px">
+            <input id="profileName" type="text" placeholder="Your name"
+                style="flex:1;min-width:180px;padding:12px;background:#101014;border:1px solid #393844;border-radius:7px;color:white">
+
+            <button type="submit"
+                style="background:#a78bfa;color:#17131f;border:0;padding:12px 18px;border-radius:7px;cursor:pointer">
+                Save Profile
+            </button>
+        </form>
+        <small id="profileMessage" class="muted"></small>
+    </div>
+
+    <div class="card" style="margin-top:20px">
+        <h3>Appearance</h3>
+        <p class="muted">Personalise the look of your workspace.</p>
+
+        <div style="margin-top:20px">
+            <label for="lifeosTheme" class="muted">Theme</label>
+            <select id="lifeosTheme"
+                style="display:block;width:100%;max-width:300px;margin-top:8px;padding:12px;background:#101014;color:white;border:1px solid #393844;border-radius:7px">
+                <option value="dark">Dark</option>
+                <option value="light">Light</option>
+            </select>
+        </div>
+
+        
+<div style="margin-top:20px">
+    <label for="lifeosAccent" class="muted">Accent Colour</label>
+
+    <div style="display:flex;align-items:center;gap:14px;margin-top:10px">
+        <input type="color" id="lifeosAccent" value="#a78bfa"
+            style="width:55px;height:45px;padding:3px;background:#101014;border:1px solid #393844;border-radius:8px;cursor:pointer">
+
+        <div>
+            <strong id="accentColourName" style="font-size:13px">Custom colour</strong>
+            <p class="muted" id="accentColourCode" style="margin:4px 0 0">#A78BFA</p>
+        </div>
+    </div>
+</div>
+
+
+        <label style="display:flex;align-items:center;gap:10px;margin-top:22px;font-size:13px">
+            <input type="checkbox" id="compactMode" style="accent-color:#a78bfa">
+            Compact workspace spacing
+        </label>
+    </div>
+
+    <div class="card" style="margin-top:20px">
+        <h3>About LifeOS</h3>
+        <p class="muted" style="line-height:1.8">
+            LifeOS is your personal space to organise tasks, build habits,
+            track goals, and plan your days.
+        </p>
+        <small class="muted">LifeOS · Personal Productivity Workspace</small>
+    </div>
+</section>
+
+        </div>
+    </main>
+</div>
+<!-- COMMAND PALETTE -->
+<div id="commandPalette" class="command-overlay">
+    <div class="command-box">
+        <div class="command-search">
+            <span>⌕</span>
+            <input
+                type="text"
+                id="commandSearch"
+                placeholder="Search LifeOS or jump to..."
+                autocomplete="off"
+            >
+            <kbd>ESC</kbd>
+        </div>
+
+        <div class="command-results" id="commandResults">
+            <p class="command-label">NAVIGATION</p>
+
+            <button class="command-item" data-section="overview">Overview</button>
+            <button class="command-item" data-section="tasks">My Tasks</button>
+            <button class="command-item" data-section="habits">Habits</button>
+            <button class="command-item" data-section="goals">Goals</button>
+            <button class="command-item" data-section="calendar">Calendar</button>
+            <button class="command-item" data-section="analytics">Analytics</button>
+            <button class="command-item" data-section="settings">Settings</button>
+        </div>
+
+        <div class="command-footer">
+            <span>↑ ↓ Navigate</span>
+            <span>↵ Select</span>
+            <span>ESC Close</span>
+        </div>
+    </div>
+</div>
+
+<script>
+
+const navItems = document.querySelectorAll(".nav-item[data-section]");
+const sections = document.querySelectorAll(".section");
+
+navItems.forEach(item => {
+    item.addEventListener("click", () => {
+        const target = item.dataset.section;
+        sections.forEach(section =>
+            section.classList.toggle("active", section.id === target)
+        );
+        navItems.forEach(nav =>
+            nav.classList.toggle("active", nav === item)
+        );
+    });
+});
+
+
+// DATE
+document.getElementById("todayDate").textContent =
+    new Date().toLocaleDateString("en-US", {
+        weekday: "long", month: "long", day: "numeric"
+    }).toUpperCase();
+
+// =====================================
+// LIFEOS LIVE OVERVIEW
+// =====================================
+
+function renderOverview() {
+    const savedTasks = tasks;
+
+    const savedHabits = habits;
+
+    const dateKey = date => {
+        const y = date.getFullYear();
+        const m = String(date.getMonth() + 1).padStart(2, "0");
+        const d = String(date.getDate()).padStart(2, "0");
+        return `${y}-${m}-${d}`;
+    };
+
+    const todayKey = dateKey(new Date());
+
+    // TASKS
+    const completedTasks = savedTasks.filter(task => task.completed).length;
+    const totalTasks = savedTasks.length;
+
+    document.getElementById("taskCount").textContent =
+        `${completedTasks} / ${totalTasks}`;
+
+    // HABITS
+    const completedHabits = savedHabits.filter(
+        habit => habit.dates && habit.dates.includes(todayKey)
+    ).length;
+
+   
+// BEST CURRENT HABIT STREAK
+let bestStreak = 0;
+
+savedHabits.forEach(habit => {
+    const streak = getStreak(habit.dates);
+    bestStreak = Math.max(bestStreak, streak);
+});
+
+document.getElementById("habitStreakValue").textContent =
+    `${bestStreak} days`;
+
+
+    // DAILY PROGRESS: TASKS + HABITS
+    const totalItems = totalTasks + savedHabits.length;
+    const completedItems = completedTasks + completedHabits;
+
+    const progress = totalItems
+        ? Math.round(completedItems / totalItems * 100)
+        : 0;
+
+    document.getElementById("dailyProgressValue").textContent =
+        `${progress}%`;
+
+    document.getElementById("dailyProgressBar").style.width =
+        `${progress}%`;
+
+    // YOUR PRIORITIES
+    const container = document.getElementById("overviewPriorities");
+    container.innerHTML = "";
+
+    const pendingTasks = savedTasks
+        .filter(task => !task.completed)
+        .sort((a, b) => {
+            const order = { High: 1, Medium: 2, Low: 3 };
+            return (order[a.priority] || 2) - (order[b.priority] || 2);
+        })
+        .slice(0, 5);
+
+    if (pendingTasks.length === 0) {
+        container.innerHTML =
+            '<p class="muted">You are all caught up! Nothing pending.</p>';
+    }
+
+    pendingTasks.forEach(task => {
+        const row = document.createElement("div");
+        row.className = "task";
+
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+
+        checkbox.addEventListener("change", () => {
+            const originalTask = savedTasks.find(t => t.id === task.id);
+
+            updateTaskCompletion(task, checkbox.checked);
+        });
+
+        const name = document.createElement("span");
+        name.textContent = task.name;
+        name.style.flex = "1";
+
+        const priority = document.createElement("small");
+        priority.textContent = task.priority;
+        priority.style.color =
+            task.priority === "High" ? "#fca5a5" :
+            task.priority === "Medium" ? "#fcd34d" : "#86efac";
+
+        row.append(checkbox, name, priority);
+        container.appendChild(row);
+    });
+}
+
+
+// TASK MANAGER — SUPABASE VERSION
+
+let tasks = [];
+let currentFilter = "all";
+let currentUserId = null;
+
+const taskForm = document.getElementById("taskForm");
+const taskInput = document.getElementById("taskInput");
+const taskPriority = document.getElementById("taskPriority");
+const taskList = document.getElementById("taskList");
+
+async function loadTasks() {
+    try {
+        const { data: sessionData } = await supabaseClient.auth.getSession();
+
+        if (!sessionData.session) return;
+
+        currentUserId = sessionData.session.user.id;
+
+        const { data, error } = await supabaseClient
+            .from("tasks")
+            .select("*")
+            .order("created_at", { ascending: false });
+
+        if (error) throw error;
+
+        tasks = data || [];
+
+        // Transfer existing browser tasks to Supabase, if this account has none.
+        if (tasks.length === 0) {
+            const oldTasks = JSON.parse(
+                localStorage.getItem("lifeosTasks") || "[]"
+            );
+
+            if (oldTasks.length > 0) {
+                const { data: migratedTasks, error: migrationError } =
+                    await supabaseClient
+                        .from("tasks")
+                        .insert(oldTasks.map(task => ({
+                            user_id: currentUserId,
+                            name: task.name,
+                            priority: task.priority || "Medium",
+                            completed: Boolean(task.completed)
+                        })))
+                        .select();
+
+                if (migrationError) throw migrationError;
+
+                tasks = migratedTasks || [];
+                localStorage.removeItem("lifeosTasks");
+            }
+        }
+
+        renderTasks();
+        if (typeof renderLifeOSAnalytics === "function") {
+            renderLifeOSAnalytics();
+        }
+
+    } catch (error) {
+        console.error("Could not load tasks:", error);
+        alert("Couldn't load your tasks: " + error.message);
+    }
+}
+
+async function updateTaskCompletion(task, completed) {
+    const { error } = await supabaseClient
+        .from("tasks")
+        .update({ completed })
+        .eq("id", task.id)
+        .eq("user_id", currentUserId);
+
+    if (error) {
+        alert("Couldn't update task: " + error.message);
+        renderTasks();
+        return;
+    }
+
+    const originalTask = tasks.find(t => t.id === task.id);
+    if (originalTask) originalTask.completed = completed;
+
+    renderTasks();
+
+    if (typeof renderLifeOSAnalytics === "function") {
+        renderLifeOSAnalytics();
+    }
+}
+
+function renderTasks() {
+    taskList.innerHTML = "";
+
+    const filtered = tasks.filter(task => {
+        if (currentFilter === "pending") return !task.completed;
+        if (currentFilter === "completed") return task.completed;
+        return true;
+    });
+
+    if (filtered.length === 0) {
+        taskList.innerHTML =
+            '<p class="muted">No tasks here yet. Add one above!</p>';
+    }
+
+    filtered.forEach(task => {
+        const item = document.createElement("div");
+
+        item.style.cssText =
+            "display:flex;align-items:center;gap:12px;padding:15px 0;border-bottom:1px solid #292933";
+
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.checked = task.completed;
+
+        checkbox.addEventListener("change", () => {
+            updateTaskCompletion(task, checkbox.checked);
+        });
+
+        const name = document.createElement("span");
+        name.textContent = task.name;
+        name.style.cssText =
+            "flex:1;font-size:13px;overflow-wrap:anywhere";
+
+        if (task.completed) {
+            name.style.textDecoration = "line-through";
+        }
+
+        const priority = document.createElement("small");
+        priority.textContent = task.priority;
+        priority.style.color =
+            task.priority === "High" ? "#fca5a5" :
+            task.priority === "Medium" ? "#fcd34d" : "#86efac";
+
+        const remove = document.createElement("button");
+        remove.textContent = "✕";
+        remove.style.cssText =
+            "background:transparent;border:0;color:#999;cursor:pointer;padding:6px";
+        remove.title = "Delete task";
+
+        remove.addEventListener("click", async () => {
+            const { error } = await supabaseClient
+                .from("tasks")
+                .delete()
+                .eq("id", task.id)
+                .eq("user_id", currentUserId);
+
+            if (error) {
+                alert("Couldn't delete task: " + error.message);
+                return;
+            }
+
+            tasks = tasks.filter(t => t.id !== task.id);
+            renderTasks();
+
+            if (typeof renderLifeOSAnalytics === "function") {
+                renderLifeOSAnalytics();
+            }
+        });
+
+        item.append(checkbox, name, priority, remove);
+        taskList.appendChild(item);
+    });
+
+    renderOverview();
+}
+
+taskForm.addEventListener("submit", async event => {
+    event.preventDefault();
+
+    const name = taskInput.value.trim();
+    if (!name || !currentUserId) return;
+
+    const { data, error } = await supabaseClient
+        .from("tasks")
+        .insert({
+            user_id: currentUserId,
+            name,
+            priority: taskPriority.value,
+            completed: false
+        })
+        .select()
+        .single();
+
+    if (error) {
+        alert("Couldn't save task: " + error.message);
+        return;
+    }
+
+    tasks.unshift(data);
+    taskForm.reset();
+    renderTasks();
+
+    if (typeof renderLifeOSAnalytics === "function") {
+        renderLifeOSAnalytics();
+    }
+});
+
+document.querySelectorAll(".task-filter").forEach(button => {
+    button.addEventListener("click", () => {
+        currentFilter = button.dataset.filter;
+
+        document.querySelectorAll(".task-filter").forEach(btn =>
+            btn.classList.toggle("active", btn === button)
+        );
+
+        renderTasks();
+    });
+});
+
+loadTasks();
+
+
+// HABIT TRACKER — SUPABASE VERSION
+
+let habits = [];
+let currentHabitUserId = null;
+
+const habitForm = document.getElementById("habitForm");
+const habitInput = document.getElementById("habitInput");
+const habitList = document.getElementById("habitList");
+
+const today = () => {
+    const date = new Date();
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+};
+
+
+async function loadHabits() {
+    try {
+        const { data: sessionData } = await supabaseClient.auth.getSession();
+        if (!sessionData.session) return;
+
+        currentHabitUserId = sessionData.session.user.id;
+
+        const { data, error } = await supabaseClient
+            .from("habits")
+            .select("*")
+            .order("created_at", { ascending: true });
+
+        if (error) throw error;
+
+        habits = data || [];
+
+        if (habits.length === 0) {
+            const oldHabits = JSON.parse(
+                localStorage.getItem("lifeosHabits") || "null"
+            );
+
+            const habitsToImport = oldHabits || [
+                { name: "Drink 2L of water", dates: [] },
+                { name: "Read for 20 minutes", dates: [] },
+                { name: "Exercise", dates: [] }
+            ];
+
+            const { data: imported, error: importError } =
+                await supabaseClient
+                    .from("habits")
+                    .insert(habitsToImport.map(habit => ({
+                        user_id: currentHabitUserId,
+                        name: habit.name,
+                        dates: habit.dates || []
+                    })))
+                    .select();
+
+            if (importError) throw importError;
+
+            habits = imported || [];
+            localStorage.removeItem("lifeosHabits");
+        }
+
+        renderHabits();
+
+        if (typeof renderLifeOSAnalytics === "function") {
+            renderLifeOSAnalytics();
+        }
+
+    } catch (error) {
+        console.error("Could not load habits:", error);
+        alert("Couldn't load habits: " + error.message);
+    }
+}
+
+
+
+function getStreak(dates) {
+    const completedDates = new Set(dates || []);
+
+    function formatDate(date) {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const day = String(date.getDate()).padStart(2, "0");
+        return `${year}-${month}-${day}`;
+    }
+
+    const date = new Date();
+    let count = 0;
+
+    // Start from today, or yesterday if today isn't completed.
+    if (!completedDates.has(formatDate(date))) {
+        date.setDate(date.getDate() - 1);
+    }
+
+    while (completedDates.has(formatDate(date))) {
+        count++;
+        date.setDate(date.getDate() - 1);
+    }
+
+    return count;
+}
+
+
+function renderHabits() {
+    habitList.innerHTML = "";
+
+    let completed = 0;
+
+    habits.forEach(habit => {
+        const isDone = habit.dates.includes(today());
+        if (isDone) completed++;
+
+        const row = document.createElement("div");
+        row.style.cssText =
+            "display:flex;align-items:center;gap:12px;padding:17px 0;border-bottom:1px solid #292933";
+
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.checked = isDone;
+        checkbox.style.accentColor = "#a78bfa";
+        checkbox.style.width = "17px";
+        checkbox.style.height = "17px";
+
+        checkbox.addEventListener("change", async () => {
+            const newDates = checkbox.checked
+                ? [...habit.dates, today()]
+                : habit.dates.filter(d => d !== today());
+
+            const { error } = await supabaseClient
+                .from("habits")
+                .update({ dates: newDates })
+                .eq("id", habit.id)
+                .eq("user_id", currentHabitUserId);
+
+            if (error) {
+                alert("Couldn't update habit: " + error.message);
+                renderHabits();
+                return;
+            }
+
+            habit.dates = newDates;
+            renderHabits();
+        });
+
+        const name = document.createElement("span");
+        name.textContent = habit.name;
+        name.style.flex = "1";
+        name.style.fontSize = "13px";
+
+        if (isDone) name.style.textDecoration = "line-through";
+
+        const streak = document.createElement("small");
+        streak.textContent = `🔥 ${getStreak(habit.dates)} day streak`;
+        streak.style.color = "#9999a6";
+
+        const remove = document.createElement("button");
+        remove.textContent = "✕";
+        remove.title = "Delete habit";
+        remove.style.cssText =
+            "background:none;border:0;color:#999;cursor:pointer;padding:6px";
+
+        remove.addEventListener("click", async () => {
+            const { error } = await supabaseClient
+                .from("habits")
+                .delete()
+                .eq("id", habit.id)
+                .eq("user_id", currentHabitUserId);
+
+            if (error) {
+                alert("Couldn't delete habit: " + error.message);
+                return;
+            }
+
+            habits = habits.filter(h => h.id !== habit.id);
+            renderHabits();
+        });
+
+        row.append(checkbox, name, streak, remove);
+        habitList.appendChild(row);
+    });
+
+    document.getElementById("habitProgress").textContent =
+        `${completed} / ${habits.length}`;
+
+    document.getElementById("habitCompleted").textContent = completed;
+    document.getElementById("habitTotal").textContent = habits.length;
+
+    renderOverview();
+}
+
+habitForm.addEventListener("submit", async event => {
+    event.preventDefault();
+
+    const name = habitInput.value.trim();
+    if (!name || !currentHabitUserId) return;
+
+    const { data, error } = await supabaseClient
+        .from("habits")
+        .insert({
+            user_id: currentHabitUserId,
+            name,
+            dates: []
+        })
+        .select()
+        .single();
+
+    if (error) {
+        alert("Couldn't save habit: " + error.message);
+        return;
+    }
+
+    habits.push(data);
+    habitForm.reset();
+    renderHabits();
+});
+
+loadHabits();
+
+
+
+/* =====================================
+   GOALS TRACKER — SUPABASE
+===================================== */
+
+let goals = [];
+let currentGoalsUserId = null;
+
+const goalForm = document.getElementById("goalForm");
+const goalList = document.getElementById("goalList");
+
+async function loadGoals() {
+    try {
+        const { data: sessionData } =
+            await supabaseClient.auth.getSession();
+
+        if (!sessionData.session) return;
+
+        currentGoalsUserId = sessionData.session.user.id;
+
+        const { data, error } = await supabaseClient
+            .from("goals")
+            .select("*")
+            .order("created_at", { ascending: true });
+
+        if (error) throw error;
+
+        goals = data || [];
+
+        // Migrate existing browser goals if cloud table is empty.
+        if (goals.length === 0) {
+            const oldGoals = JSON.parse(
+                localStorage.getItem("lifeosGoals") || "[]"
+            );
+
+            if (oldGoals.length > 0) {
+                const { data: imported, error: importError } =
+                    await supabaseClient
+                        .from("goals")
+                        .insert(oldGoals.map(goal => ({
+                            user_id: currentGoalsUserId,
+                            name: goal.name,
+                            deadline: goal.deadline || null,
+                            progress: goal.progress || 0,
+                            milestones: goal.milestones || []
+                        })))
+                        .select();
+
+                if (importError) throw importError;
+
+                goals = imported || [];
+                localStorage.removeItem("lifeosGoals");
+            }
+        }
+
+        renderGoals();
+
+        if (typeof renderLifeOSAnalytics === "function") {
+            renderLifeOSAnalytics();
+        }
+
+    } catch (error) {
+        console.error("Goals loading error:", error);
+        alert("Couldn't load goals: " + error.message);
+    }
+}
+
+async function saveGoal(goal) {
+    const { error } = await supabaseClient
+        .from("goals")
+        .update({
+            progress: goal.progress,
+            milestones: goal.milestones
+        })
+        .eq("id", goal.id)
+        .eq("user_id", currentGoalsUserId);
+
+    if (error) {
+        alert("Couldn't save goal: " + error.message);
+        return false;
+    }
+
+    return true;
+}
+
+function renderGoals() {
+    goalList.innerHTML = "";
+
+    if (goals.length === 0) {
+        goalList.innerHTML =
+            '<div class="empty">No goals yet. What would you like to achieve?</div>';
+        return;
+    }
+
+    goals.forEach(goal => {
+        if (!Array.isArray(goal.milestones)) {
+            goal.milestones = [];
+        }
+
+        const hasMilestones = goal.milestones.length > 0;
+
+        const heading = document.createElement("div");
+        heading.style.cssText =
+            "display:flex;justify-content:space-between;align-items:center;gap:12px";
+
+        const name = document.createElement("strong");
+        name.textContent = goal.name;
+
+        const remove = document.createElement("button");
+        remove.textContent = "✕";
+        remove.title = "Delete goal";
+        remove.style.cssText =
+            "background:none;border:0;color:#999;cursor:pointer";
+
+        remove.addEventListener("click", async () => {
+            const { error } = await supabaseClient
+                .from("goals")
+                .delete()
+                .eq("id", goal.id)
+                .eq("user_id", currentGoalsUserId);
+
+            if (error) {
+                alert("Couldn't delete goal: " + error.message);
+                return;
+            }
+
+            goals = goals.filter(g => g.id !== goal.id);
+            renderGoals();
+        });
+
+        heading.append(name, remove);
+
+        const deadline = document.createElement("p");
+        deadline.className = "muted";
+        deadline.textContent =
+            "Deadline: " + (goal.deadline || "Not set");
+
+        const progressText = document.createElement("p");
+        progressText.className = "muted";
+        progressText.textContent = goal.progress + "% completed";
+
+        const bar = document.createElement("div");
+        bar.className = "progress";
+
+        const fill = document.createElement("span");
+        fill.style.width = goal.progress + "%";
+        bar.appendChild(fill);
+
+        // OPTIONAL MILESTONES
+        const milestoneTitle = document.createElement("p");
+        milestoneTitle.textContent = "MILESTONES (OPTIONAL)";
+        milestoneTitle.style.cssText =
+            "font-size:10px;letter-spacing:1px;color:#9999a6;margin-top:22px";
+
+        const milestoneList = document.createElement("div");
+
+        goal.milestones.forEach((milestone, index) => {
+            const row = document.createElement("label");
+            row.style.cssText =
+                "display:flex;align-items:center;gap:10px;padding:9px 0;font-size:13px;color:#c5c5ce";
+
+            const checkbox = document.createElement("input");
+            checkbox.type = "checkbox";
+            checkbox.checked = milestone.done;
+            checkbox.style.accentColor = "#a78bfa";
+
+            checkbox.addEventListener("change", async () => {
+                milestone.done = checkbox.checked;
+
+                if (hasMilestones) {
+                    goal.progress = Math.round(
+                        goal.milestones.filter(m => m.done).length /
+                        goal.milestones.length * 100
+                    );
+                }
+
+                if (await saveGoal(goal)) renderGoals();
+            });
+
+            const text = document.createElement("span");
+            text.textContent = milestone.name;
+            text.style.flex = "1";
+
+            if (milestone.done) {
+                text.style.textDecoration = "line-through";
+            }
+
+            const deleteMilestone = document.createElement("button");
+            deleteMilestone.textContent = "✕";
+            deleteMilestone.style.cssText =
+                "background:none;border:0;color:#777;cursor:pointer";
+
+            deleteMilestone.addEventListener("click", async () => {
+                goal.milestones.splice(index, 1);
+
+                if (goal.milestones.length > 0) {
+                    goal.progress = Math.round(
+                        goal.milestones.filter(m => m.done).length /
+                        goal.milestones.length * 100
+                    );
+                }
+
+                if (await saveGoal(goal)) renderGoals();
+            });
+
+            row.append(checkbox, text, deleteMilestone);
+            milestoneList.appendChild(row);
+        });
+
+        // ADD MILESTONE
+        const milestoneForm = document.createElement("form");
+        milestoneForm.style.cssText =
+            "display:flex;gap:8px;margin-top:12px;flex-wrap:wrap";
+
+        const milestoneInput = document.createElement("input");
+        milestoneInput.placeholder = "Add a small step...";
+        milestoneInput.required = true;
+        milestoneInput.style.cssText =
+            "flex:1;min-width:150px;padding:10px;background:#101014;border:1px solid #393844;border-radius:6px;color:white";
+
+        const addMilestone = document.createElement("button");
+        addMilestone.type = "submit";
+        addMilestone.textContent = "+ Add step";
+        addMilestone.style.cssText =
+            "background:#282333;color:#c4b5fd;border:1px solid #51436c;border-radius:6px;padding:9px 12px;cursor:pointer";
+
+        milestoneForm.append(milestoneInput, addMilestone);
+
+        milestoneForm.addEventListener("submit", async event => {
+            event.preventDefault();
+
+            const milestoneName = milestoneInput.value.trim();
+            if (!milestoneName) return;
+
+            goal.milestones.push({
+                name: milestoneName,
+                done: false
+            });
+
+            if (await saveGoal(goal)) renderGoals();
+        });
+
+        // MANUAL PROGRESS
+        const actions = document.createElement("div");
+        actions.style.cssText =
+            "display:flex;gap:10px;margin-top:18px";
+
+        const update = document.createElement("button");
+        update.type = "button";
+        update.textContent =
+            goal.progress === 100 ? "Completed" : "+ 10% Progress";
+
+        update.disabled = goal.progress === 100 || hasMilestones;
+
+        update.style.cssText =
+            "background:#282333;color:#c4b5fd;border:1px solid #51436c;border-radius:6px;padding:8px 12px;cursor:pointer";
+
+        update.addEventListener("click", async () => {
+            goal.progress = Math.min(100, goal.progress + 10);
+            if (await saveGoal(goal)) renderGoals();
+        });
+
+        actions.appendChild(update);
+
+        const card = document.createElement("div");
+        card.className = "card";
+        card.style.marginBottom = "15px";
+
+        card.append(
+            heading,
+            deadline,
+            progressText,
+            bar,
+            milestoneTitle,
+            milestoneList,
+            milestoneForm,
+            actions
+        );
+
+        goalList.appendChild(card);
+    });
+}
+
+// ADD NEW GOAL
+goalForm.addEventListener("submit", async event => {
+    event.preventDefault();
+
+    const goalInput = document.getElementById("goalInput");
+    const goalDeadline = document.getElementById("goalDeadline");
+
+    const { data, error } = await supabaseClient
+        .from("goals")
+        .insert({
+            user_id: currentGoalsUserId,
+            name: goalInput.value.trim(),
+            deadline: goalDeadline.value || null,
+            progress: 0,
+            milestones: []
+        })
+        .select()
+        .single();
+
+    if (error) {
+        alert("Couldn't save goal: " + error.message);
+        return;
+    }
+
+    goals.push(data);
+    goalForm.reset();
+    renderGoals();
+});
+
+loadGoals();
+
+
+/* =====================================
+   CALENDAR — SUPABASE
+===================================== */
+
+let calendarEvents = [];
+let currentCalendarUserId = null;
+
+const calendarGrid = document.getElementById("calendarGrid");
+const calendarMonth = document.getElementById("calendarMonth");
+const selectedDateTitle = document.getElementById("selectedDateTitle");
+const selectedEvents = document.getElementById("selectedEvents");
+const upcomingEvents = document.getElementById("upcomingEvents");
+const calendarEventForm = document.getElementById("calendarEventForm");
+const eventInput = document.getElementById("eventInput");
+const eventDate = document.getElementById("eventDate");
+
+function calendarTodayISO() {
+    const d = new Date();
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+}
+
+let selectedCalendarDate = calendarTodayISO();
+let calendarViewDate = new Date();
+calendarViewDate.setDate(1);
+
+async function loadCalendarEvents() {
+    try {
+        const { data: sessionData } =
+            await supabaseClient.auth.getSession();
+
+        if (!sessionData.session) return;
+
+        currentCalendarUserId = sessionData.session.user.id;
+
+        const { data, error } = await supabaseClient
+            .from("calendar_events")
+            .select("*")
+            .order("event_date", { ascending: true });
+
+        if (error) throw error;
+
+        calendarEvents = (data || []).map(event => ({
+            id: event.id,
+            title: event.title,
+            date: event.event_date
+        }));
+
+        // Migrate old browser events if cloud table is empty.
+        if (calendarEvents.length === 0) {
+            const oldEvents = JSON.parse(
+                localStorage.getItem("lifeosCalendarEvents") || "[]"
+            );
+
+            if (oldEvents.length > 0) {
+                const { data: imported, error: importError } =
+                    await supabaseClient
+                        .from("calendar_events")
+                        .insert(oldEvents.map(event => ({
+                            user_id: currentCalendarUserId,
+                            title: event.title,
+                            event_date: event.date
+                        })))
+                        .select();
+
+                if (importError) throw importError;
+
+                calendarEvents = (imported || []).map(event => ({
+                    id: event.id,
+                    title: event.title,
+                    date: event.event_date
+                }));
+
+                localStorage.removeItem("lifeosCalendarEvents");
+            }
+        }
+
+        renderCalendar();
+
+    } catch (error) {
+        console.error("Calendar loading error:", error);
+        alert("Couldn't load calendar: " + error.message);
+    }
+}
+
+function formatCalendarDate(dateString) {
+    const [year, month, day] = dateString.split("-").map(Number);
+    return new Date(year, month - 1, day).toLocaleDateString(
+        "en-IN",
+        { day: "numeric", month: "long", year: "numeric" }
+    );
+}
+
+function renderCalendar() {
+    calendarGrid.innerHTML = "";
+    calendarGrid.style.display = "grid";
+    calendarGrid.style.gridTemplateColumns =
+        "repeat(7, minmax(0, 1fr))";
+    calendarGrid.style.gap = "7px";
+
+    const weekdays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+
+    weekdays.forEach(day => {
+        const heading = document.createElement("div");
+        heading.textContent = day;
+        heading.style.cssText =
+            "text-align:center;color:#9999a6;font-size:11px;padding:8px 0";
+        calendarGrid.appendChild(heading);
+    });
+
+    const year = calendarViewDate.getFullYear();
+    const month = calendarViewDate.getMonth();
+
+    calendarMonth.textContent = calendarViewDate.toLocaleDateString(
+        "en-IN",
+        { month: "long", year: "numeric" }
+    );
+
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    const startOffset = (firstDay.getDay() + 6) % 7;
+
+    for (let i = 0; i < startOffset; i++) {
+        calendarGrid.appendChild(document.createElement("div"));
+    }
+
+    for (let day = 1; day <= lastDay.getDate(); day++) {
+        const dateString =
+            `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+
+        const dayEvents = calendarEvents.filter(
+            event => event.date === dateString
+        );
+
+        const button = document.createElement("button");
+        button.type = "button";
+        button.textContent = day;
+
+        const isToday = dateString === calendarTodayISO();
+        const isSelected = dateString === selectedCalendarDate;
+
+        button.style.cssText =
+            "min-height:48px;border-radius:8px;border:1px solid " +
+            (isSelected ? "#a78bfa" : "#292933") +
+            ";background:" +
+            (isSelected ? "#302544" : "#17171e") +
+            ";color:" +
+            (isToday ? "#c4b5fd" : "#e5e5eb") +
+            ";cursor:pointer;font-size:13px;position:relative";
+
+        if (isToday) button.style.fontWeight = "bold";
+
+        if (dayEvents.length > 0) {
+            button.textContent = `${day} •`;
+            button.style.color = "#c4b5fd";
+        }
+
+        button.addEventListener("click", () => {
+            selectedCalendarDate = dateString;
+            eventDate.value = dateString;
+            renderCalendar();
+            renderSelectedEvents();
+        });
+
+        calendarGrid.appendChild(button);
+    }
+
+    renderSelectedEvents();
+    renderUpcomingEvents();
+}
+
+function renderSelectedEvents() {
+    selectedDateTitle.textContent =
+        "Events — " + formatCalendarDate(selectedCalendarDate);
+
+    selectedEvents.innerHTML = "";
+
+    const eventsForDay = calendarEvents.filter(
+        event => event.date === selectedCalendarDate
+    );
+
+    if (eventsForDay.length === 0) {
+        selectedEvents.innerHTML =
+            '<p class="muted">Nothing planned for this day yet.</p>';
+        return;
+    }
+
+    eventsForDay.forEach(event => {
+        const row = document.createElement("div");
+        row.style.cssText =
+            "display:flex;justify-content:space-between;align-items:center;gap:10px;padding:13px 0;border-bottom:1px solid #292933";
+
+        const name = document.createElement("span");
+        name.textContent = event.title;
+        name.style.fontSize = "13px";
+
+        const remove = document.createElement("button");
+        remove.type = "button";
+        remove.textContent = "✕";
+        remove.title = "Delete event";
+        remove.style.cssText =
+            "background:none;border:0;color:#999;cursor:pointer";
+
+        remove.addEventListener("click", async () => {
+            const { error } = await supabaseClient
+                .from("calendar_events")
+                .delete()
+                .eq("id", event.id)
+                .eq("user_id", currentCalendarUserId);
+
+            if (error) {
+                alert("Couldn't delete event: " + error.message);
+                return;
+            }
+
+            calendarEvents = calendarEvents.filter(
+                item => item.id !== event.id
+            );
+
+            renderCalendar();
+        });
+
+        row.append(name, remove);
+        selectedEvents.appendChild(row);
+    });
+}
+
+function renderUpcomingEvents() {
+    upcomingEvents.innerHTML = "";
+
+    const upcoming = calendarEvents
+        .filter(event => event.date >= calendarTodayISO())
+        .sort((a, b) => a.date.localeCompare(b.date))
+        .slice(0, 5);
+
+    if (upcoming.length === 0) {
+        upcomingEvents.innerHTML =
+            '<p class="muted">No upcoming events. Enjoy the free time!</p>';
+        return;
+    }
+
+    upcoming.forEach(event => {
+        const row = document.createElement("div");
+        row.style.cssText =
+            "padding:12px 0;border-bottom:1px solid #292933";
+
+        const title = document.createElement("div");
+        title.textContent = event.title;
+        title.style.fontSize = "13px";
+
+        const date = document.createElement("small");
+        date.textContent = formatCalendarDate(event.date);
+        date.style.color = "#9999a6";
+
+        row.append(title, date);
+        upcomingEvents.appendChild(row);
+    });
+}
+
+// ADD EVENT
+calendarEventForm.addEventListener("submit", async event => {
+    event.preventDefault();
+
+    const title = eventInput.value.trim();
+    const date = eventDate.value;
+
+    if (!title || !date || !currentCalendarUserId) return;
+
+    const { data, error } = await supabaseClient
+        .from("calendar_events")
+        .insert({
+            user_id: currentCalendarUserId,
+            title,
+            event_date: date
+        })
+        .select()
+        .single();
+
+    if (error) {
+        alert("Couldn't save event: " + error.message);
+        return;
+    }
+
+    calendarEvents.push({
+        id: data.id,
+        title: data.title,
+        date: data.event_date
+    });
+
+    selectedCalendarDate = date;
+
+    const [year, month] = date.split("-").map(Number);
+    calendarViewDate = new Date(year, month - 1, 1);
+
+    calendarEventForm.reset();
+    eventDate.value = selectedCalendarDate;
+
+    renderCalendar();
+});
+
+// MONTH NAVIGATION
+document.getElementById("prevMonth").addEventListener("click", () => {
+    calendarViewDate.setMonth(calendarViewDate.getMonth() - 1);
+    renderCalendar();
+});
+
+document.getElementById("nextMonth").addEventListener("click", () => {
+    calendarViewDate.setMonth(calendarViewDate.getMonth() + 1);
+    renderCalendar();
+});
+
+// INITIAL DISPLAY
+eventDate.value = selectedCalendarDate;
+
+loadCalendarEvents();
+loadGoals();
+
+// =====================================
+// LIFEOS ANALYTICS
+// =====================================
+
+function lifeosGetData(key) {
+    try {
+        return JSON.parse(localStorage.getItem(key)) || [];
+    } catch {
+        return [];
+    }
+}
+
+function lifeosIsTaskComplete(task) {
+    return task.completed === true ||
+        task.done === true ||
+        task.isCompleted === true ||
+        task.status === "completed";
+}
+
+function lifeosDateString(date) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+}
+
+function renderLifeOSAnalytics() {
+    const analyticsTasksData = tasks;
+const analyticsHabitsData = habits;
+const analyticsGoalsData = goals;
+const analyticsEventsData = calendarEvents;
+
+    const completedTasks = analyticsTasksData.filter(
+        lifeosIsTaskComplete
+    ).length;
+
+    const pendingTasks = analyticsTasksData.length - completedTasks;
+
+    document.getElementById("analyticsTasks").textContent =
+        completedTasks;
+
+    document.getElementById("analyticsTasksSub").textContent =
+        `${pendingTasks} pending`;
+
+    const todayString = lifeosDateString(new Date());
+
+    const completedHabitsToday = analyticsHabitsData.filter(
+        habit => Array.isArray(habit.dates) &&
+        habit.dates.includes(todayString)
+    ).length;
+
+    const habitRate = analyticsHabitsData.length
+        ? Math.round(completedHabitsToday / analyticsHabitsData.length * 100)
+        : 0;
+
+    document.getElementById("analyticsHabits").textContent =
+        `${habitRate}%`;
+
+    const completedGoals = analyticsGoalsData.filter(
+        goal => Number(goal.progress) >= 100
+    ).length;
+
+    document.getElementById("analyticsGoals").textContent =
+        completedGoals;
+
+    document.getElementById("analyticsGoalsSub").textContent =
+        `${analyticsGoalsData.length - completedGoals} active goals`;
+
+    const upcomingCount = analyticsEventsData.filter(
+        event => (event.date || event.event_date) >= todayString
+    ).length;
+
+    document.getElementById("analyticsEvents").textContent =
+        upcomingCount;
+
+    // GOAL PROGRESS
+    const goalContainer = document.getElementById("analyticsGoalList");
+    goalContainer.innerHTML = "";
+
+    if (analyticsGoalsData.length === 0) {
+        goalContainer.innerHTML =
+            '<p class="muted">Add your first goal to see your progress here.</p>';
+    } else {
+        analyticsGoalsData.forEach(goal => {
+            const row = document.createElement("div");
+            row.style.marginBottom = "18px";
+
+            const heading = document.createElement("div");
+            heading.style.cssText =
+                "display:flex;justify-content:space-between;gap:10px;margin-bottom:8px;font-size:13px";
+
+            const name = document.createElement("span");
+            name.textContent = goal.name;
+
+            const percentage = document.createElement("span");
+            percentage.textContent = `${Number(goal.progress) || 0}%`;
+            percentage.style.color = "var(--lifeos-accent, #a78bfa)";
+
+            const bar = document.createElement("div");
+            bar.style.cssText =
+                "height:7px;background:#292933;border-radius:10px;overflow:hidden";
+
+            const fill = document.createElement("div");
+            fill.style.cssText =
+                `height:100%;width:${Math.max(0, Math.min(100, Number(goal.progress) || 0))}%;background:var(--lifeos-accent, #a78bfa);border-radius:10px`;
+
+            bar.appendChild(fill);
+            heading.append(name, percentage);
+            row.append(heading, bar);
+            goalContainer.appendChild(row);
+        });
+    }
+
+    // LAST 7 DAYS OF HABITS
+    const weeklyContainer = document.getElementById("analyticsWeekly");
+    weeklyContainer.innerHTML = "";
+
+    for (let i = 6; i >= 0; i--) {
+        const date = new Date();
+        date.setDate(date.getDate() - i);
+
+        const dateString = lifeosDateString(date);
+
+        const count = analyticsHabitsData.filter(
+            habit => Array.isArray(habit.dates) &&
+            habit.dates.includes(dateString)
+        ).length;
+
+        const rate = analyticsHabitsData.length
+            ? count / analyticsHabitsData.length * 100
+            : 0;
+
+        const column = document.createElement("div");
+        column.style.cssText =
+            "display:flex;flex-direction:column;align-items:center;gap:8px;min-width:0";
+
+        const barBackground = document.createElement("div");
+        barBackground.style.cssText =
+            "height:100px;width:100%;max-width:35px;background:#292933;border-radius:7px;display:flex;align-items:flex-end;overflow:hidden";
+
+        const barFill = document.createElement("div");
+        barFill.style.cssText =
+            `width:100%;height:${rate}%;background:var(--lifeos-accent, #a78bfa);border-radius:7px`;
+
+        const countLabel = document.createElement("small");
+        countLabel.textContent = `${count}/${analyticsHabitsData.length}`;
+        countLabel.style.color = "#9999a6";
+
+        const dayLabel = document.createElement("small");
+        dayLabel.textContent = date.toLocaleDateString("en-IN", {
+            weekday: "short"
+        });
+        dayLabel.style.color = "#9999a6";
+
+        barBackground.appendChild(barFill);
+        column.append(barBackground, countLabel, dayLabel);
+        weeklyContainer.appendChild(column);
+    }
+
+    // PRODUCTIVITY SUMMARY
+    const summary = document.getElementById("analyticsSummary");
+
+    summary.textContent =
+        `You've completed ${completedTasks} of ${analyticsTasksData.length} saved tasks. ` +
+        `Today, you've completed ${completedHabitsToday} of ${analyticsHabitsData.length} habits. ` +
+        `You have ${completedGoals} completed goals and ${upcomingCount} upcoming events. Keep going!`;
+}
+
+renderLifeOSAnalytics();
+
+
+// =====================================
+// LIFEOS SETTINGS
+// =====================================
+
+const lifeosTheme = document.getElementById("lifeosTheme");
+const lifeosAccent = document.getElementById("lifeosAccent");
+const compactMode = document.getElementById("compactMode");
+const profileSettingsForm = document.getElementById("profileSettingsForm");
+const profileName = document.getElementById("profileName");
+const profileMessage = document.getElementById("profileMessage");
+
+// THEME STYLES
+if (!document.getElementById("lifeosSettingsStyles")) {
+    const settingsStyle = document.createElement("style");
+    settingsStyle.id = "lifeosSettingsStyles";
+    settingsStyle.textContent = `
+        body.lifeos-light {
+            background: #f4f4f8 !important;
+            color: #242331 !important;
+        }
+        body.lifeos-light .card,
+        body.lifeos-light .sidebar,
+        body.lifeos-light .topbar {
+            background: #ffffff !important;
+            color: #242331 !important;
+            border-color: #dedee8 !important;
+        }
+        body.lifeos-light .muted {
+            color: #777687 !important;
+        }
+        body.lifeos-light input,
+        body.lifeos-light select {
+            background: #f3f3f7 !important;
+            color: #242331 !important;
+            border-color: #d8d8e2 !important;
+        }
+        body.lifeos-light .calendar-grid button {
+            color: #242331 !important;
+        }
+        body.lifeos-compact .card {
+            padding: 14px !important;
+        }
+        body.lifeos-compact .section {
+            gap: 10px;
+        }
+            input[type="checkbox"] {
+    accent-color: var(--lifeos-accent) !important;
+}
+    `;
+    document.head.appendChild(settingsStyle);
+}
+
+
+function applyLifeOSSettings() {
+    const theme = localStorage.getItem("lifeosTheme") || "dark";
+    const accent = localStorage.getItem("lifeosAccent") || "#a78bfa";
+    const compact = localStorage.getItem("lifeosCompact") === "true";
+
+    document.body.classList.toggle("lifeos-light", theme === "light");
+    document.body.classList.toggle("lifeos-compact", compact);
+
+    document.documentElement.style.setProperty(
+        "--lifeos-accent",
+        accent
+    );
+
+    // Update the colour picker and its preview
+    lifeosTheme.value = theme;
+    lifeosAccent.value = accent;
+    compactMode.checked = compact;
+
+    document.getElementById("accentColourCode").textContent =
+        accent.toUpperCase();
+
+    // Apply the chosen colour to existing purple highlights
+    document.querySelectorAll("[style]").forEach(element => {
+        if (!element.dataset.lifeosOriginalStyle) {
+            element.dataset.lifeosOriginalStyle =
+                element.getAttribute("style");
+        }
+
+        element.setAttribute(
+            "style",
+            element.dataset.lifeosOriginalStyle
+                .replace(/#a78bfa/gi, accent)
+                .replace(/#c4b5fd/gi, accent)
+        );
+        
+    });
+}
+
+
+// CHANGE THEME
+lifeosTheme.addEventListener("change", () => {
+    localStorage.setItem("lifeosTheme", lifeosTheme.value);
+    applyLifeOSSettings();
+});
+
+
+// CHANGE ACCENT COLOUR
+lifeosAccent.addEventListener("input", () => {
+    localStorage.setItem("lifeosAccent", lifeosAccent.value);
+    applyLifeOSSettings();
+});
+
+
+// COMPACT MODE
+compactMode.addEventListener("change", () => {
+    localStorage.setItem("lifeosCompact", compactMode.checked);
+    applyLifeOSSettings();
+});
+// APPLY SAVED SETTINGS ON PAGE LOAD
+applyLifeOSSettings();
+// COMMAND PALETTE
+const commandPalette = document.getElementById("commandPalette");
+const commandSearch = document.getElementById("commandSearch");
+const commandItems = [...document.querySelectorAll(".command-item")];
+
+let selectedCommand = 0;
+
+function openCommandPalette() {
+    commandPalette.classList.add("active");
+    commandSearch.value = "";
+    selectedCommand = 0;
+    filterCommands();
+    commandSearch.focus();
+}
+
+function closeCommandPalette() {
+    commandPalette.classList.remove("active");
+}
+
+function filterCommands() {
+    const query = commandSearch.value.toLowerCase();
+    let visibleItems = [];
+
+    commandItems.forEach(item => {
+        const matches = item.textContent.toLowerCase().includes(query);
+        item.style.display = matches ? "block" : "none";
+
+        if (matches) visibleItems.push(item);
+        item.classList.remove("selected");
+    });
+
+    selectedCommand = 0;
+
+    if (visibleItems.length > 0) {
+        visibleItems[0].classList.add("selected");
+    }
+}
+
+function selectCommand(item) {
+    if (!item) return;
+
+    const section = item.dataset.section;
+    const navButton = document.querySelector(
+        `.nav-item[data-section="${section}"]`
+    );
+
+    if (navButton) navButton.click();
+
+    closeCommandPalette();
+}
+
+document.addEventListener("keydown", event => {
+    if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
+        event.preventDefault();
+        openCommandPalette();
+    }
+
+    if (event.key === "Escape") {
+        closeCommandPalette();
+    }
+
+    if (!commandPalette.classList.contains("active")) return;
+
+    const visibleItems = commandItems.filter(
+        item => item.style.display !== "none"
+    );
+
+    if (event.key === "ArrowDown") {
+        event.preventDefault();
+        selectedCommand = (selectedCommand + 1) % visibleItems.length;
+    }
+
+    if (event.key === "ArrowUp") {
+        event.preventDefault();
+        selectedCommand =
+            (selectedCommand - 1 + visibleItems.length) % visibleItems.length;
+    }
+
+    if (event.key === "Enter") {
+        event.preventDefault();
+        selectCommand(visibleItems[selectedCommand]);
+    }
+
+    visibleItems.forEach((item, index) => {
+        item.classList.toggle("selected", index === selectedCommand);
+    });
+});
+
+commandSearch.addEventListener("input", filterCommands);
+
+commandItems.forEach(item => {
+    item.addEventListener("click", () => selectCommand(item));
+});
+
+commandPalette.addEventListener("click", event => {
+    if (event.target === commandPalette) {
+        closeCommandPalette();
+    }
+});
+</script>
+
+<script>
+async function protectDashboard() {
+    const { data, error } = await supabaseClient.auth.getSession();
+
+    if (error || !data.session) {
+        window.location.replace("./login.html");
+    }
+}
+
+protectDashboard();
+
+// Log out
+document.getElementById("logoutButton").addEventListener("click", async function(event) {
+    event.preventDefault();
+
+    const { error } = await supabaseClient.auth.signOut();
+
+    if (error) {
+        alert(error.message);
+        return;
+    }
+
+    window.location.replace("./login.html");
+});
+</script>
+
+</body>
+</html>

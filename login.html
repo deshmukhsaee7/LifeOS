@@ -1,0 +1,411 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Sign In | LifeOS</title>
+
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="./supabase.js"></script>
+</head>
+
+<body class="login-page">
+
+<header class="navbar login-navbar">
+
+    <a href="index.html" class="logo">
+        life<span>OS</span>
+    </a>
+
+    <nav class="login-nav-links">
+        <a href="#features">Features</a>
+        <a href="#about">About</a>
+        <a href="#whats-new">What's New</a>
+    </nav>
+
+    <a href="./index.html" class="nav-login home-link">
+        ← Back to Home
+    </a>
+
+</header>
+
+
+<main class="login-container">
+
+    <div class="login-card">
+
+        <div class="login-icon">✦</div>
+
+        <h1>Welcome back.</h1>
+
+        <p class="login-subtitle">
+            Your space is waiting for you.
+        </p>
+
+        <!-- GOOGLE SIGN IN -->
+
+        <button class="google-button" type="button" id="googleLogin">
+            <span>G</span>
+            Continue with Google
+        </button>
+
+        <div class="login-divider">
+            <span>OR CONTINUE WITH EMAIL</span>
+        </div>
+
+
+        <!-- EMAIL LOGIN -->
+
+        <form id="loginForm">
+
+            <label for="email">Email address</label>
+
+            <input
+                type="email"
+                id="email"
+                placeholder="you@example.com"
+                autocomplete="email"
+                required
+            >
+
+            <div class="password-heading">
+                <label for="password">Password</label>
+                <a href="#" id="forgotPassword">Forgot password?</a>
+            </div>
+
+            <input
+                type="password"
+                id="password"
+                placeholder="Enter your password"
+                autocomplete="current-password"
+                minlength="6"
+                required
+            >
+
+            <button
+                type="button"
+                id="togglePassword"
+                style="background:none;border:0;color:#a78bfa;cursor:pointer;margin-top:9px;font-size:12px;"
+            >
+                Show password
+            </button>
+
+            <p
+                id="loginMessage"
+                role="status"
+                aria-live="polite"
+                style="font-size:13px;margin:12px 0;min-height:18px;"
+            ></p>
+
+            <button type="submit" class="login-button">
+                Sign In <span>→</span>
+            </button>
+
+        </form>
+
+
+        <p class="signup-text">
+            Don't have an account?
+            <a href="signup.html">Create account</a>
+        </p>
+
+    </div>
+
+    <p class="login-footer">
+        Make space for the life you want.
+    </p>
+
+</main>
+
+
+<!-- FEATURES SECTION -->
+
+<section class="info-section" id="features">
+
+    <div class="section-label">WHAT YOU GET</div>
+
+    <h2>Everything you need.<br>
+        <span>One workspace.</span>
+    </h2>
+
+    <p class="section-description">
+        Bring your daily life together with tools
+        designed to help you stay focused and organized.
+    </p>
+
+    <div class="feature-grid">
+
+        <div class="feature-card">
+            <span>◈</span>
+            <h3>Tasks</h3>
+            <p>Organize your day and stay on top of priorities.</p>
+        </div>
+
+        <div class="feature-card">
+            <span>◷</span>
+            <h3>Habits</h3>
+            <p>Build consistency through small daily actions.</p>
+        </div>
+
+        <div class="feature-card">
+            <span>◎</span>
+            <h3>Goals</h3>
+            <p>Turn your ambitions into achievable milestones.</p>
+        </div>
+
+        <div class="feature-card">
+            <span>▦</span>
+            <h3>Calendar</h3>
+            <p>Keep your schedule and important events together.</p>
+        </div>
+
+        <div class="feature-card">
+            <span>↗</span>
+            <h3>Analytics</h3>
+            <p>Understand your progress and track your growth.</p>
+        </div>
+
+        <div class="feature-card">
+            <span>⌘</span>
+            <h3>One workspace</h3>
+            <p>Manage your personal life from one place.</p>
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- ABOUT SECTION -->
+
+<section class="info-section about-section" id="about">
+
+    <div class="section-label">ABOUT LIFEOS</div>
+
+    <h2>Your life deserves<br>
+        <span>a little more organization.</span>
+    </h2>
+
+    <p class="section-description">
+        LifeOS is a personal productivity workspace
+        designed to bring your tasks, habits, goals
+        and plans together.
+    </p>
+
+    <p class="about-message">
+        We believe that managing your life shouldn't
+        feel like another task on your to-do list.
+        LifeOS helps you make space for what matters.
+    </p>
+
+</section>
+
+
+<!-- WHAT'S NEW SECTION -->
+
+<section class="info-section updates-section" id="whats-new">
+
+    <div class="section-label">WHAT'S NEW</div>
+
+    <h2>Always getting <span>better.</span></h2>
+
+    <p class="section-description">
+        We're building LifeOS one thoughtful improvement
+        at a time.
+    </p>
+
+    <div class="update-card">
+        <span class="update-tag">CURRENT BUILD</span>
+        <h3>LifeOS is taking shape.</h3>
+        <p>
+            Our welcome experience, authentication interface
+            and personal workspace are under development.
+        </p>
+    </div>
+
+</section>
+
+
+<footer class="site-footer">
+
+    <div class="logo">life<span>OS</span></div>
+    <p>Make space for the life you want.</p>
+    <a href="./index.html">Back to Home ↑</a>
+
+</footer>
+
+
+<!-- ALL JAVASCRIPT -->
+
+<script>
+
+// ELEMENTS
+
+const loginForm = document.getElementById("loginForm");
+const passwordInput = document.getElementById("password");
+const togglePassword = document.getElementById("togglePassword");
+const loginMessage = document.getElementById("loginMessage");
+const forgotPasswordLink = document.getElementById("forgotPassword");
+
+
+// SHOW / HIDE PASSWORD
+
+togglePassword.addEventListener("click", () => {
+
+    const isHidden = passwordInput.type === "password";
+
+    passwordInput.type = isHidden ? "text" : "password";
+
+    togglePassword.textContent = isHidden
+        ? "Hide password"
+        : "Show password";
+
+});
+
+
+// EMAIL LOGIN
+
+loginForm.addEventListener("submit", async function(event) {
+
+    event.preventDefault();
+
+    if (!this.reportValidity()) return;
+
+    const email = document.getElementById("email").value.trim();
+    const password = passwordInput.value;
+
+    const button = this.querySelector('button[type="submit"]');
+
+    button.disabled = true;
+    button.textContent = "Signing in...";
+
+    loginMessage.textContent = "";
+    loginMessage.style.color = "#f87171";
+
+    try {
+
+        const { error } = await supabaseClient.auth.signInWithPassword({
+            email,
+            password
+        });
+
+        if (error) throw error;
+
+        loginMessage.style.color = "#86efac";
+        loginMessage.textContent = "Login successful! Opening your workspace...";
+
+        window.location.replace("./dashboard.html");
+
+    } catch (error) {
+
+        loginMessage.textContent =
+            error.message === "Invalid login credentials"
+                ? "Incorrect email or password. Please try again."
+                : error.message;
+
+    } finally {
+
+        button.disabled = false;
+        button.innerHTML = 'Sign In <span>→</span>';
+
+    }
+
+});
+
+
+// FORGOT PASSWORD
+
+forgotPasswordLink.addEventListener("click", async (event) => {
+
+    event.preventDefault();
+
+    const email = document.getElementById("email").value.trim();
+
+    if (!email) {
+
+        loginMessage.style.color = "#f87171";
+        loginMessage.textContent = "Please enter your email address first.";
+
+        document.getElementById("email").focus();
+
+        return;
+
+    }
+
+    forgotPasswordLink.textContent = "Sending...";
+
+    loginMessage.textContent = "";
+
+    try {
+
+        const { error } = await supabaseClient.auth.resetPasswordForEmail(
+            email,
+            {
+                redirectTo: window.location.origin + "/reset-password.html"
+            }
+        );
+
+        if (error) throw error;
+
+        loginMessage.style.color = "#86efac";
+        loginMessage.textContent =
+            "Password reset link sent! Please check your email.";
+
+    } catch (error) {
+
+        loginMessage.style.color = "#f87171";
+        loginMessage.textContent = error.message;
+
+    } finally {
+
+        forgotPasswordLink.textContent = "Forgot password?";
+
+    }
+
+});
+
+
+// GOOGLE SIGN IN
+
+document.getElementById("googleLogin").addEventListener("click", async () => {
+
+    const googleButton = document.getElementById("googleLogin");
+
+    googleButton.disabled = true;
+
+    loginMessage.textContent = "";
+
+    try {
+
+        const { error } = await supabaseClient.auth.signInWithOAuth({
+
+            provider: "google",
+
+            options: {
+                redirectTo: window.location.origin + "/dashboard.html"
+            }
+
+        });
+
+        if (error) throw error;
+
+    } catch (error) {
+
+        loginMessage.style.color = "#f87171";
+        loginMessage.textContent = error.message;
+
+        googleButton.disabled = false;
+
+    }
+
+});
+
+</script>
+
+<script src="script.js"></script>
+
+</body>
+</html>
